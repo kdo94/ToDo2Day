@@ -1,8 +1,12 @@
 package edu.orangecoastcollege.cs273.kdo94.todo2day;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
 
 class DBHelper extends SQLiteOpenHelper {   // Can not make private classes in Java
                                             // public because of sensitive information
@@ -39,5 +43,50 @@ class DBHelper extends SQLiteOpenHelper {   // Can not make private classes in J
         database.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE);
         onCreate(database);
     }
+
+    // Create a method to adda  brand new task to the databse:
+    public void addTask(Task newTask){
+        // Step 1: Create a reference to the database
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Step 2: Make a key-value pair for each  value you want to insert
+        ContentValues values = new ContentValues();
+        values.put(KEY_FIELD_ID, newTask.getId());
+        values.put(FIELD_DESCRIPTION, newTask.getDescription());
+        values.put(FIELD_IS_DONE, newTask.getIsDone());
+
+        // Step 3: Insert values into our db
+        db.insert(DATABASE_TABLE, null, values);
+		
+		// Step 4: CLOSE the databsae
+		db.close();
+    }
+	
+	// Create a method to get all the tasks in the database
+	public ArrayList<Task> getAllTasks(){
+		// Step 1: Create a reference to the database
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		// Step 2: Make a new empty ArrayList
+		ArrayList<Task> allTasks = new ArrayList<>();
+		
+		// Step 3: Query the database for all records (all rows) and all fields (all columns)
+		// The return type of a query is Cursor
+		Cursor results = db.query(DATABASE_TABLE, null, null, null, null, null, null);
+		
+		// Setp 4: Loop through the results, create Task objects add to the ArrayList
+		if(results.moveToFirst()){
+			do{
+				int id = results.getInt(0);
+				String description = results.getString(1);
+				int isDone = results.getInt(2);
+				
+				allTasks.add(new Task(id, description, isDone));
+			} while(results.moveToNext());
+		}
+		db.close();
+		return allTasks;
+	}
+
 
 }

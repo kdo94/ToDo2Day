@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
             Task newTask = new Task(description, 0);
 //            // Add the Task to the List
 //            taskList.add(newTask);
-
+            // Can do the one below or the one above, both will add two to the database
             // Add Task to the ListAdapter
             taskListAdapter.add(newTask);
 

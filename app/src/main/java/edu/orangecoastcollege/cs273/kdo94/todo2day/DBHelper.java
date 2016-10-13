@@ -30,7 +30,8 @@ class DBHelper extends SQLiteOpenHelper {   // Can not make private classes in J
     @Override
     public void onCreate (SQLiteDatabase database){
         String table = "CREATE TABLE " + DATABASE_TABLE + "("
-                + KEY_FIELD_ID + " INTEGER PRIMARY KEY, "
+                + KEY_FIELD_ID + " INTEGER PRIMARY KEY, AUTO INCREMENT" // Lets the database
+                                                // assign the ids and never have duplicates
                 + FIELD_DESCRIPTION + " TEXT, "
                 + FIELD_IS_DONE + " INTEGER" + ")";
         database.execSQL (table);
@@ -44,21 +45,21 @@ class DBHelper extends SQLiteOpenHelper {   // Can not make private classes in J
         onCreate(database);
     }
 
-    // Create a method to adda  brand new task to the databse:
+    // Create a method to adda  brand new task to the database:
     public void addTask(Task newTask){
         // Step 1: Create a reference to the database
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Step 2: Make a key-value pair for each  value you want to insert
         ContentValues values = new ContentValues();
-        values.put(KEY_FIELD_ID, newTask.getId());
+        //values.put(KEY_FIELD_ID, newTask.getId());
         values.put(FIELD_DESCRIPTION, newTask.getDescription());
         values.put(FIELD_IS_DONE, newTask.getIsDone());
 
         // Step 3: Insert values into our db
         db.insert(DATABASE_TABLE, null, values);
 		
-		// Step 4: CLOSE the databsae
+		// Step 4: CLOSE the database
 		db.close();
     }
 	
@@ -74,7 +75,7 @@ class DBHelper extends SQLiteOpenHelper {   // Can not make private classes in J
 		// The return type of a query is Cursor
 		Cursor results = db.query(DATABASE_TABLE, null, null, null, null, null, null);
 		
-		// Setp 4: Loop through the results, create Task objects add to the ArrayList
+		// Step 4: Loop through the results, create Task objects add to the ArrayList
 		if(results.moveToFirst()){
 			do{
 				int id = results.getInt(0);
@@ -88,5 +89,32 @@ class DBHelper extends SQLiteOpenHelper {   // Can not make private classes in J
 		return allTasks;
 	}
 
+    public void updateTask(Task existingTask){
+        // Step 1: Create a reference to the database
+        SQLiteDatabase db = this.getWritableDatabase();
 
+        // Step 2: Make a key-value pair for each  value you want to insert
+        ContentValues values = new ContentValues();
+        //values.put(KEY_FIELD_ID, newTask.getId());
+        values.put(FIELD_DESCRIPTION, existingTask.getDescription());
+        values.put(FIELD_IS_DONE, existingTask.getIsDone());
+
+        // Step 3: Edit (UPDATE in SQLite)values into our db
+        db.update(DATABASE_TABLE,   // Which table to update
+                values, // What values to update as stated above
+                KEY_FIELD_ID + "=?",    // Which one to update, null if you want all
+                new String[] {String.valueOf(existingTask.getId())});   // Which ids you are updating
+                                                                    // null if you want all
+
+        // Step 4: CLOSE the database
+        db.close();
+    }
+
+    public void deleteAllTasks(){
+        // Step 1: Create a reference to the database
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(DATABASE_TABLE, null, null);
+        // whereClause is to restrict what ids you want to update, null if all
+        db.close();
+    }
 }
